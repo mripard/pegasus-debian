@@ -1,0 +1,13 @@
+[Unit]
+ConditionPathExists=!/var/lib/pegasus/hostname
+Before=avahi-daemon.service
+
+[Service]
+Type=oneshot
+StateDirectory=pegasus
+ExecStart=/usr/local/bin/set-hostname
+ExecStartPost=/usr/bin/touch ${STATE_DIRECTORY}/hostname
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target avahi-daemon.service

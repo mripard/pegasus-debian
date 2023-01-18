@@ -1,0 +1,119 @@
+{{- $dradis_version := or .dradis_version "0.3.3" -}}
+{{- $runner_version := or .runner_version "2.300.2" -}}
+{{- $runner_user := or .runner_user "runner" -}}
+{{- $admin_user := or .admin_user "admin" -}}
+{{- $image := or .image "pegasus-arm64-image.img" -}}
+
+architecture: arm64
+
+actions:
+  - action: debootstrap
+    suite: bullseye
+    components:
+      - main
+      - contrib
+      - non-free
+
+  - action: overlay
+    source: overlays/main
+
+  - action: apt
+    packages:
+      - avahi-daemon
+      - ca-certificates
+      - cpufrequtils
+      - dbus
+      - dns-root-data
+      - dnsmasq
+      - gpiod
+      - libraspberrypi-bin
+      - openssh-server
+      - python3-serial
+      - raspberrypi-archive-keyring
+      - raspberrypi-bootloader
+      - raspberrypi-kernel
+      - sudo
+      - systemd-timesyncd
+      - vim-tiny
+      - wget
+
+      # Github Actions Runner Dependencies
+      - libicu67
+      - libkrb5-3
+      - liblttng-ust0
+      - libssl1.1
+      - zlib1g
+
+  - action: overlay
+    source: overlays/boot
+    destination: /boot
+
+  - action: run
+    chroot: true
+    script: scripts/setup-network.sh
+
+  - action: run
+    chroot: true
+    script: scripts/setup-groups.sh
+
+  - action: run
+    chroot: true
+    script: scripts/setup-dradis.sh {{ $dradis_version }}
+
+  - action: run
+    chroot: true
+    script: scripts/setup-admin-user.sh {{ $admin_user }}
+
+  - action: overlay
+    source: overlays/admin-user
+    destination: /home/{{ $admin_user }}
+
+  - action: run
+    chroot: true
+    script: scripts/setup-runner-user.sh {{ $runner_user }}
+
+  - action: overlay
+    source: overlays/runner-user
+    destination: /home/{{ $runner_user }}
+
+  - action: download
+    url: https://github.com/actions/runner/releases/download/v{{ $runner_version }}/actions-runner-linux-arm64-{{ $runner_version}}.tar.gz
+    name: actions-runner
+    unpack: true
+
+  - action: overlay
+    origin: actions-runner
+    destination: /home/{{ $runner_user }}/actions-runner/
+
+  - action: run
+    chroot: true
+    script: scripts/setup-tftp.sh
+
+  - action: run
+    chroot: true
+    command: chown -R {{ $runner_user }}:{{ $runner_user }} /home/{{ $runner_user }}/
+
+  - action: image-partition
+    imagename: {{ $image }}
+    imagesize: 2GB
+    partitiontype: gpt
+    partitions:
+      - name: boot
+        fs: fat32
+        start: 0
+        end: 128MB
+        partuuid: bc13c2ff-59e6-4262-a352-b275fd6f7172
+      - name: root
+        fs: ext4
+        start: 128MB
+        end: 100%
+        partuuid: b921b045-1df0-41c3-af44-4c6f280d3fae
+        flags: [ boot ]
+    mountpoints:
+      - mountpoint: /
+        partition: root
+      - mountpoint: /boot
+        partition: boot
+
+  - action: filesystem-deploy
+    description: Deploying filesystem onto image

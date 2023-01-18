@@ -1,0 +1,5 @@
+#!/bin/sh
+
+SERIAL=$(vcgencmd otp_dump | grep '28:' | cut -d ':' -f 2)
+
+hostnamectl set-hostname pegasus-${SERIAL}
