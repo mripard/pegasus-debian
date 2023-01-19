@@ -1,6 +1,10 @@
 [Unit]
 Description=Github Actions Runner
 After=network.target
+
+# ./config.sh will create .runner and store the credentials there. If it's not
+# there it means the device hasn't been configured yet and we can just skip the
+# runner launch.
 ConditionPathExists=/home/runner/actions-runner/.runner
 
 [Service]
@@ -8,66 +12,79 @@ User=runner
 WorkingDirectory=/home/runner/actions-runner
 ExecStart=/home/runner/actions-runner/run.sh
 
-CapabilityBoundingSet=
-RestrictNamespaces=~cgroup
-RestrictNamespaces=~ipc
-RestrictNamespaces=~mnt
-RestrictNamespaces=~net
-RestrictNamespaces=~pid
-RestrictNamespaces=~user
-RestrictNamespaces=~uts
+# Prevent the Runner from changing its execution domain
+LockPersonality=yes
 
+# The Runner and its jobs should never gain any privilege on the system
 NoNewPrivileges=yes
-IPAddressDeny=10.0.0.0/8 172.16.0.0/12 192.168.0.0/16
+
+# Prevent the runner from loading any module
+ProtectKernelModules=yes
+
+# Prevent the runner from accessing the kernel logs
+ProtectKernelLogs=yes
+
+# Prevent the runner from accessing any of the kernel variables under /proc and
+# /sys
+ProtectKernelTunables=yes
+
+# Mount the entire file-system but /dev, /sys and /proc as read-only
+ProtectSystem=strict
+
+# Make /sys/fs/cgroup read-only
+ProtectControlGroups=yes
+
+# Hide everything under /proc that doesn't belong to a process from the same user
+ProtectProc=invisible
+
+# Hide everything under /proc that belongs to another PID
+ProcSubset=pid
+
+# Isolate /tmp and /var/tmp from the rest of the system
+PrivateTmp=yes
+
+# Prevent the runner from writing to the hardware clock or system clock
+ProtectClock=yes
+
+# Create a new UTS namespace and prevent any change to the hostname
+ProtectHostname=yes
+
+# Isolate all mount operations into their own namespace for the Runner
+PrivateMounts=yes
+
+# Deny any access from the Runner and its jobs to devices but for DMA Heaps,
+# GPIOs, v4l2 devices, /dev/null, /dev/zero, /dev/random and /dev/urandom
 DeviceAllow=char-dma_heap
 DeviceAllow=char-gpiochip
 DeviceAllow=char-video4linux
 DevicePolicy=closed
 
-# Needed to boot?
-# MemoryDenyWriteExecute=yes
+# The runner can only use UNIX, IPv4 and IPv6 sockets
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
 
-InaccessiblePaths=/dev/shm
+# Deny any access to the local network from the Runner and its jobs
+IPAddressDeny=10.0.0.0/8 172.16.0.0/12 192.168.0.0/16
+
+# Make sure the Runner cannot set the SID and GID bits on files or directories
+RestrictSUIDSGID=yes
+
+# Make sure that the Runner can only issue native syscalls
 SystemCallArchitectures=native
 
-SystemCallFilter=~memfd_create
-SystemCallFilter=~@clock
-SystemCallFilter=~@debug
-SystemCallFilter=~@module
-SystemCallFilter=~@mount
+# The Runner doesn't need any capabilities so we can just drop them
+CapabilityBoundingSet=
 
-SystemCallFilter=~@privileged
-SystemCallFilter=fchownat
+# Prevent the Runner from using any Linux Namespace
+RestrictNamespaces=true
 
-SystemCallFilter=~@raw-io
-SystemCallFilter=~@reboot
-
-SystemCallFilter=~@resources
-SystemCallFilter=sched_setaffinity
-SystemCallFilter=sched_setscheduler
-
-SystemCallFilter=~@swap
-
-
-SystemCallLog=~
-
-PrivateTmp=yes
-ProtectControlGroups=yes
-ProtectKernelModules=yes
-ProtectKernelTunables=yes
-
-ProtectKernelLogs=yes
-ProtectSystem=strict
-
-RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
-RestrictRealtime=yes
-LockPersonality=yes
-PrivateMounts=yes
-ProtectHostname=yes
-RestrictSUIDSGID=yes
-ProtectClock=yes
-ProtectProc=invisible
-ProcSubset=pid
+# Prevent the Runner and its jobs to issue most syscalls. The definition of the 
+# syscall groups can be found here: 
+# https://github.com/systemd/systemd/blob/main/src/shared/seccomp-util.c
+ 
+SystemCallFilter=@system-service
+SystemCallFilter=~@keyring
+SystemCallFilter=~@memlock
+SystemCallFilter=~@setuid
 
 [Install]
 WantedBy=multi-user.target

@@ -11,33 +11,93 @@ WorkingDirectory=/home/runner/tftp
 ExecStart=/usr/sbin/dnsmasq --conf-file=${HOME}/tftp/config/dnsmasq.conf --dhcp-leasefile=${STATE_DIRECTORY}/dhcp-leases
 Type=forking
 
+# Prevent the daemon from changing its execution domain
+LockPersonality=yes
+
+# The daemon should never gain any privilege on the system
+NoNewPrivileges=yes
+
+# Prevent the daemon from getting mappings that are both writable and
+# executable
+MemoryDenyWriteExecute=yes
+
+# Prevent the daemon from loading any module
+ProtectKernelModules=yes
+
+# Prevent the daemon from accessing the kernel logs
+ProtectKernelLogs=yes
+
+# Prevent the daemon from accessing any of the kernel variables under /proc and
+# /sys
+ProtectKernelTunables=yes
+
+# Mount the entire file-system but /dev, /sys and /proc as read-only
+ProtectSystem=strict
+
+# Make /sys/fs/cgroup read-only
+ProtectControlGroups=yes
+
+# Hide everything under /proc that doesn't belong to a process from the same user
+ProtectProc=invisible
+
+# Hide everything under /proc that belongs to another PID
+ProcSubset=pid
+
+# Isolate /dev for this user and only fill it with pseudo devices (null, zero,
+# random, tty, etc.) but no physical device
+PrivateDevices=yes
+
+# Prevent the daemon from getting Writable/Executable mappings through
+# /dev/shm usually mounted without noexec
+InaccessiblePaths=/dev/shm
+
+# Isolate /tmp and /var/tmp from the rest of the system
+PrivateTmp=yes
+
+# Mount an empty tmpfs over /home, /root and /run/user ...
+ProtectHome=tmpfs
+
+# ... And bind mount the TFTP folder inside that tmpfs
+BindPaths=/home/runner/tftp
+
+# Prevent the daemon from writing to the hardware clock or system clock
+ProtectClock=yes
+
+# Create a new UTS namespace and prevent any change to the hostname
+ProtectHostname=yes
+
+# Isolate all mount operations into their own namespace for the Runner
+PrivateMounts=yes
+
+# The runner can only use IPv4, Netlink and UNIX sockets
+RestrictAddressFamilies=AF_INET AF_NETLINK AF_UNIX
+
+# Make sure the daemon cannot set the SID and GID bits on files or directories
+RestrictSUIDSGID=yes
+
+# Make sure that the daemon can only issue native syscalls
+SystemCallArchitectures=native
+
+# The daemon needs those capabilities to bind to a port < 1024 socket and use a
+# raw socket 
 CapabilityBoundingSet=CAP_NET_ADMIN
 CapabilityBoundingSet=CAP_NET_BIND_SERVICE
 CapabilityBoundingSet=CAP_NET_RAW
 
+# Make sure the daemon with those capabilities set
 AmbientCapabilities=CAP_NET_ADMIN
 AmbientCapabilities=CAP_NET_BIND_SERVICE
 AmbientCapabilities=CAP_NET_RAW
 
-NoNewPrivileges=yes
-PrivateDevices=yes
+# Prevent the daemon from using any Linux Namespace
+RestrictNamespaces=true
 
-ProtectHome=tmpfs
-BindPaths=/home/runner/tftp
-PrivateTmp=yes
-ProtectClock=yes
-ProtectControlGroups=yes
-ProtectKernelLogs=yes
-ProtectKernelModules=yes
-ProtectKernelTunables=yes
-ProtectProc=noaccess
-RestrictAddressFamilies=AF_INET AF_NETLINK AF_UNIX
-SystemCallArchitectures=native
-MemoryDenyWriteExecute=yes
-RestrictSUIDSGID=yes
-ProtectSystem=strict
-RestrictNamespaces=yes
+# Prevent the daemon from changing its scheduling policy to real time options
+RestrictRealtime=yes
 
+# Prevent the daemon to issue most syscalls. The definition of the 
+# syscall groups can be found here: 
+# https://github.com/systemd/systemd/blob/main/src/shared/seccomp-util.c
 SystemCallFilter=@system-service
 SystemCallFilter=~@aio
 SystemCallFilter=~@keyring
@@ -45,9 +105,9 @@ SystemCallFilter=~@privileged
 SystemCallFilter=~@setuid
 SystemCallFilter=~@timer
 
-ProtectHostname=yes
-LockPersonality=yes
-RestrictRealtime=yes
+# Prevent the daemon from getting Writable/Executable mappings through
+# memfd_create 
+SystemCallFilter=~memfd_create
 
 [Install]
 WantedBy=multi-user.target
