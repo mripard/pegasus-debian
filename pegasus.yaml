@@ -1,4 +1,5 @@
 {{- $dradis_version := or .dradis_version "0.3.3" -}}
+{{- $dut_rootfs_version := or .dut_rootfs_version "0.1.1" -}}
 {{- $runner_version := or .runner_version "2.300.2" -}}
 {{- $runner_user := or .runner_user "runner" -}}
 {{- $admin_user := or .admin_user "admin" -}}
@@ -88,6 +89,15 @@ actions:
   - action: run
     chroot: true
     script: scripts/setup-tftp.sh
+
+  - action: download
+    url: https://github.com/mripard/raptor-br-external/releases/download/v{{ $dut_rootfs_version }}/rootfs.cpio.xz
+    unpack: false
+    name: rootfs.cpio.xz
+
+  - action: run
+    chroot: false
+    command: sh -c "cp -av rootfs.cpio.xz ${ROOTDIR}/home/{{ $runner_user }}/tftp/files/"
 
   - action: run
     chroot: true
