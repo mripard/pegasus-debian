@@ -1,0 +1,51 @@
+#!/bin/bash
+
+set +x
+
+RUNNER_USER=runner
+DNSMASQ_CONFIG_TEMPLATE=/home/$RUNNER_USER/tftp/config/dnsmasq.conf.j2
+DNSMASQ_CONFIG_FILE=/home/$RUNNER_USER/tftp/config/dnsmasq.conf
+
+SHORT=u:,t:,m:,l:
+LONG=url:,token:,mac:,label:
+
+OPTS=$(getopt -a -n first-config --options $SHORT --longoptions $LONG -- "$@") || exit
+eval set -- "$OPTS"
+
+while :
+do
+	case $1 in
+		-u | --url )
+			url="$2"
+			shift 2
+		;;
+		-t | --token )
+			token="$2"
+			shift 2
+		;;
+		-m | --mac )
+			mac="$2"
+			shift 2
+		;;
+		-l | --label )
+			label="$2"
+			shift 2
+		;;
+		--)
+			shift
+			break
+			;;
+	esac
+done
+
+CONFIG_CMD="./config.sh \
+	--replace --unattended \
+	--labels $label \
+	--url $url \
+	--token $token"
+
+sudo --user=$RUNNER_USER \
+	sh -c "cd /home/runner/actions-runner && $CONFIG_CMD"
+
+sudo --user=$RUNNER_USER \
+	sh -c "jinja2 -D mac_addresses=\"$mac\" $DNSMASQ_CONFIG_TEMPLATE > $DNSMASQ_CONFIG_FILE"

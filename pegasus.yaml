@@ -29,6 +29,7 @@ actions:
       - gpiod
       - libraspberrypi-bin
       - openssh-server
+      - python3-pip
       - python3-serial
       - raspberrypi-archive-keyring
       - raspberrypi-bootloader
@@ -44,6 +45,10 @@ actions:
       - liblttng-ust0
       - libssl1.1
       - zlib1g
+
+  - action: run
+    chroot: true
+    command: sh -c "pip install jinja2-cli"
 
   - action: overlay
     source: overlays/boot

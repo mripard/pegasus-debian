@@ -1,0 +1,28 @@
+# Bind to the network interfaces defined
+bind-interfaces
+
+# And only bind to the eth0 interface
+interface=eth0
+
+# Add extra logging for DHCP
+log-dhcp
+
+# Enable the TFTP Server
+enable-tftp
+
+# And serve from that directory
+tftp-root=/home/runner/tftp/files/
+
+# Enable the DHCP Server over the 192.168.0.0/16 Range, and perform
+# Proxy-DHCP over that range.
+dhcp-range=192.168.0.0,proxy,255.255.0.0
+
+# Handle the following MAC Addresses...
+{% if mac_addresses -%}
+{% for mac in mac_addresses.split(',') -%}
+dhcp-host={{ mac }},set:pxe
+{%- endfor %}
+{%- endif %}
+
+# ... and offer them PXE Boot if we see them doing a DHCP Request
+pxe-service=tag:pxe,0,"Raspberry Pi Boot"

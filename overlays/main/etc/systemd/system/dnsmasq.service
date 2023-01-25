@@ -2,6 +2,10 @@
 Description=DNS/TFTP Server
 Wants=network-online.target
 After=network-online.target
+
+# first-config will create the DNSMasq configuration there. If it's not there
+# it means the device hasn't been configured yet and we can just skip the
+# daemon launch.
 ConditionPathExists=/home/runner/tftp/config/dnsmasq.conf
 
 [Service]
