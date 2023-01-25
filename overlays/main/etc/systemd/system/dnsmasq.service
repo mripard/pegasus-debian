@@ -2,6 +2,7 @@
 Description=DNS/TFTP Server
 Wants=network-online.target
 After=network-online.target
+ConditionPathExists=/home/runner/tftp/config/dnsmasq.conf
 
 [Service]
 User=runner
