@@ -1,8 +1,7 @@
 [Unit]
 Description=DNS/TFTP Server
-Before=nss-lookup.target
-Wants=nss-lookup.target
-After=network.target
+Wants=network-online.target
+After=network-online.target
 
 [Service]
 User=runner
