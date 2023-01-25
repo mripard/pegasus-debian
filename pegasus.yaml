@@ -102,7 +102,7 @@ actions:
 
   - action: run
     chroot: false
-    command: sh -c "cp -av rootfs.cpio.xz ${ROOTDIR}/home/{{ $runner_user }}/tftp/files/"
+    command: sh -c "cp -av ${ROOTDIR}/../rootfs.cpio.xz ${ROOTDIR}/home/{{ $runner_user }}/tftp/files/"
 
   - action: run
     chroot: true
