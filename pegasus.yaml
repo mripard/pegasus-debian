@@ -9,7 +9,7 @@ architecture: arm64
 
 actions:
   - action: debootstrap
-    suite: bullseye
+    suite: bookworm
     components:
       - main
       - contrib
@@ -27,9 +27,10 @@ actions:
       - dns-root-data
       - dnsmasq
       - gpiod
+      - j2cli
+      - jq
       - libraspberrypi-bin
       - openssh-server
-      - python3-pip
       - python3-serial
       - raspberrypi-archive-keyring
       - raspberrypi-bootloader
@@ -40,15 +41,11 @@ actions:
       - wget
 
       # Github Actions Runner Dependencies
-      - libicu67
+      - libicu72
       - libkrb5-3
-      - liblttng-ust0
+      - liblttng-ust1
       - libssl1.1
       - zlib1g
-
-  - action: run
-    chroot: true
-    command: sh -c "pip install jinja2-cli"
 
   - action: overlay
     source: overlays/boot
