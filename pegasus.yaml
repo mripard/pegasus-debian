@@ -112,14 +112,16 @@ actions:
     partitions:
       - name: boot
         fs: fat32
-        start: 0
-        end: 128MB
-        partuuid: bc13c2ff-59e6-4262-a352-b275fd6f7172
+        start: 4MB
+        end: 512MB
+        parttype: c12a7328-f81f-11d2-ba4b-00a0c93ec93b
+        partuuid: af027e5c-aca9-4400-885b-552b0501b39a
       - name: root
         fs: ext4
-        start: 128MB
+        start: 512MB
         end: 100%
-        partuuid: b921b045-1df0-41c3-af44-4c6f280d3fae
+        parttype: b921b045-1df0-41c3-af44-4c6f280d3fae
+        partuuid: 042e3038-ccc8-4c8c-aff4-54b2b6610cee
         flags: [ boot ]
     mountpoints:
       - mountpoint: /

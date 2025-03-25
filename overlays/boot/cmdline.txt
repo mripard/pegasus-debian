@@ -1,1 +1,1 @@
-console=serial0,115200 root=PARTUUID=b921b045-1df0-41c3-af44-4c6f280d3fae fsck.repair=yes rootwait
+console=serial0,115200 root=PARTUUID=042e3038-ccc8-4c8c-aff4-54b2b6610cee fsck.repair=yes rootwait
