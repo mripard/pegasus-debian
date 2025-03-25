@@ -23,18 +23,7 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo sudo apt install -y \
-              debootstrap \
-              git \
-              golang \
-              libglib2.0-dev \
-              libostree-dev \
-              qemu-system-x86 \
-              qemu-user-static \
-              systemd-container
-
-      - name: Install debos
-        run: sudo GOBIN=/usr/local/bin go install -v github.com/go-debos/debos/cmd/debos@latest
+          sudo sudo apt install debos
 
       - name: Build Image
         run: sudo debos --disable-fakemachine ./pegasus.yaml
