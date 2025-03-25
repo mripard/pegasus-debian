@@ -36,6 +36,7 @@ actions:
       - raspberrypi-bootloader
       - raspberrypi-kernel
       - sudo
+      - systemd-resolved
       - systemd-timesyncd
       - vim-tiny
       - wget
