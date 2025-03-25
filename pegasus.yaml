@@ -1,5 +1,5 @@
 {{- $dradis_version := or .dradis_version "0.4.4" -}}
-{{- $dut_rootfs_version := or .dut_rootfs_version "0.1.1" -}}
+{{- $dut_rootfs_version := or .dut_rootfs_version "0.1.3" -}}
 {{- $runner_version := or .runner_version "2.311.0" -}}
 {{- $runner_user := or .runner_user "runner" -}}
 {{- $admin_user := or .admin_user "admin" -}}
