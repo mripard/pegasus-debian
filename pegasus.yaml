@@ -33,8 +33,8 @@ actions:
       - openssh-server
       - python3-serial
       - raspberrypi-archive-keyring
-      - raspberrypi-bootloader
       - raspberrypi-kernel
+      - raspi-firmware
       - sudo
       - systemd-resolved
       - systemd-timesyncd
@@ -111,7 +111,7 @@ actions:
     imagesize: 2GB
     partitiontype: gpt
     partitions:
-      - name: boot
+      - name: firmware
         fs: fat32
         start: 4MB
         end: 512MB
@@ -127,8 +127,8 @@ actions:
     mountpoints:
       - mountpoint: /
         partition: root
-      - mountpoint: /boot
-        partition: boot
+      - mountpoint: /boot/firmware
+        partition: firmware
         options: [ x-systemd.automount ]
 
   - action: filesystem-deploy
