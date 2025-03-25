@@ -30,10 +30,10 @@ actions:
       - j2cli
       - jq
       - libraspberrypi-bin
+      - linux-image-rpi-v8
       - openssh-server
       - python3-serial
       - raspberrypi-archive-keyring
-      - raspberrypi-kernel
       - raspi-firmware
       - sudo
       - systemd-resolved
