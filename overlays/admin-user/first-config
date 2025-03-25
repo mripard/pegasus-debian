@@ -48,4 +48,4 @@ sudo --user=$RUNNER_USER \
 	sh -c "cd /home/runner/actions-runner && $CONFIG_CMD"
 
 sudo --user=$RUNNER_USER \
-	sh -c "jq -n --arg mac_addresses \"$mac\" '$ARGS.named' | j2 --format=json $DNSMASQ_CONFIG_TEMPLATE > $DNSMASQ_CONFIG_FILE"
+	sh -c "jq -n --arg mac_addresses \"$mac\" '\$ARGS.named' | j2 --format=json $DNSMASQ_CONFIG_TEMPLATE > $DNSMASQ_CONFIG_FILE"
