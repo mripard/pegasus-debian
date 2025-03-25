@@ -1,4 +1,4 @@
-{{- $dradis_version := or .dradis_version "0.3.4" -}}
+{{- $dradis_version := or .dradis_version "0.4.4" -}}
 {{- $dut_rootfs_version := or .dut_rootfs_version "0.1.1" -}}
 {{- $runner_version := or .runner_version "2.311.0" -}}
 {{- $runner_user := or .runner_user "runner" -}}
