@@ -40,7 +40,7 @@ jobs:
         run: sudo debos --disable-fakemachine ./pegasus.yaml
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: pegasus-image
           path: pegasus-arm64-image.img
